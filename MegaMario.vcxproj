@@ -168,6 +168,7 @@
     <ClCompile Include="src\main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\Action.hpp" />
     <ClInclude Include="src\Assets.hpp" />
     <ClInclude Include="src\Animation.hpp" />
     <ClInclude Include="src\Components.hpp" />
