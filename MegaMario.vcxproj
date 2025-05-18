@@ -168,6 +168,8 @@
     <ClCompile Include="src\main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\Assets.hpp" />
+    <ClInclude Include="src\Animation.hpp" />
     <ClInclude Include="src\Components.hpp" />
     <ClInclude Include="src\Entity.hpp" />
     <ClInclude Include="src\EntityManager.hpp" />

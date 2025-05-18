@@ -80,5 +80,11 @@
     <ClInclude Include="src\Game.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\Animation.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Assets.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
