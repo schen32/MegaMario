@@ -140,7 +140,10 @@ void Game::sRender()
 	{
 		auto& entityTransform = entity->get<CTransform>();
 
-		// m_window.draw();
+		auto shape = sf::CircleShape(50.0f);
+		shape.setPosition(entityTransform.pos);
+
+		m_window.draw(shape);
 	}
 	m_window.draw(m_text);
 
