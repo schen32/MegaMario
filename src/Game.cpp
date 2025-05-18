@@ -18,11 +18,6 @@ void Game::init(const std::string& path)
 	ImGui::GetStyle().ScaleAllSizes(2.0f);
 	ImGui::GetIO().FontGlobalScale = 2.0f;
 
-	m_font.openFromFile("font/CaviarDreams.ttf");
-	m_text.setCharacterSize(30);
-	m_text.setFillColor(sf::Color::White);
-	m_text.setPosition({ 30.0f, 20.0f });
-
 	// int SR, CR, FR, FG, FB, OR, OG, OB, OT, V; float S
 	m_playerConfig = { 32, 32, 100, 100, 100, 250, 250, 250, 4, 6, 5.0f };
 	// int SR, CR, FR, FG, FB, OR, OG, OB, OT, V, L; float S
@@ -74,100 +69,27 @@ void Game::spawnPlayer()
 		sf::Color(m_playerConfig.FR, m_playerConfig.FG, m_playerConfig.FB),
 		sf::Color(m_playerConfig.OR, m_playerConfig.OG, m_playerConfig.OB),
 		m_playerConfig.OT);
-	player->add<CCollision>(m_playerConfig.CR);
 	player->add<CInput>();
 }
 
 void Game::spawnEnemy()
 {
-	// Create random device and seed generator
-	std::random_device rd;
-	std::mt19937 gen(rd());
 
-	// Create distributions with different names
-	std::uniform_int_distribution<> xDistrib(m_enemyConfig.SR,
-		m_windowConfig.uW - m_enemyConfig.SR);
-	std::uniform_int_distribution<> yDistrib(m_enemyConfig.SR,
-		m_windowConfig.uH - m_enemyConfig.SR);
-	std::uniform_real_distribution<float> speedDistrib(-m_enemyConfig.SMAX, m_enemyConfig.SMAX);
-	std::uniform_int_distribution<> verticeDistrib(m_enemyConfig.VMIN, m_enemyConfig.VMAX);
-	std::uniform_int_distribution<> colorDistrib(0, 255);
-	int vertices = verticeDistrib(gen);
-
-	auto enemy = m_entities.addEntity("enemy");
-
-	enemy->add<CTransform>(Vec2f(xDistrib(gen), yDistrib(gen)),
-		Vec2f(speedDistrib(gen), speedDistrib(gen)), 0.0f);
-	enemy->add<CShape>(m_enemyConfig.SR, vertices,
-		sf::Color(colorDistrib(gen), colorDistrib(gen), colorDistrib(gen)),
-		sf::Color(m_enemyConfig.OR, m_enemyConfig.OG, m_enemyConfig.OB),
-		m_enemyConfig.OT);
-	enemy->add<CCollision>(m_enemyConfig.CR);
-	enemy->add<CScore>(vertices);
-
-	m_lastEnemySpawnTime = m_currentFrame;
 }
 
 void Game::spawnSmallEnemies(std::shared_ptr<Entity> entity)
 {
-	auto& parentTransform = entity->get<CTransform>();
-	auto& parentShape = entity->get<CShape>();
 
-	size_t vertices = parentShape.circle.getPointCount();
-	for (size_t i = 0; i < vertices; i++)
-	{
-		auto enemySmall = m_entities.addEntity("enemySmall");
-
-		float angle = i * (2 * 3.14159 / vertices);
-		Vec2f angleVec = Vec2f(std::cos(angle), std::sin(angle));
-		Vec2f velocity = angleVec * parentTransform.velocity.length();
-
-		enemySmall->add<CTransform>(parentTransform.pos + velocity,
-			velocity, 0.0f);
-		enemySmall->add<CShape>(m_enemyConfig.SR / 2, vertices,
-			parentShape.circle.getFillColor(),
-			parentShape.circle.getOutlineColor(),
-			m_enemyConfig.OT);
-		enemySmall->add<CCollision>(m_enemyConfig.CR / 2);
-		enemySmall->add<CLifespan>(m_enemyConfig.L);
-		enemySmall->add<CScore>(vertices);
-	}
-
-	entity->destroy();
 }
 
 void Game::spawnBullet(std::shared_ptr<Entity> entity, const Vec2f& target)
 {
-	auto bullet = m_entities.addEntity("bullet");
-	auto& entityTransform = entity->get<CTransform>();
 
-	Vec2f bulletVelocity = target - entityTransform.pos;
-	bulletVelocity = (bulletVelocity / bulletVelocity.length()) * m_bulletConfig.S;
-
-	bullet->add<CTransform>(entityTransform.pos, bulletVelocity, entityTransform.angle);
-	bullet->add<CShape>(m_bulletConfig.SR, m_bulletConfig.V,
-		sf::Color(m_bulletConfig.FR, m_bulletConfig.FG, m_bulletConfig.FB),
-		sf::Color(m_bulletConfig.OR, m_bulletConfig.OG, m_bulletConfig.OB),
-		m_bulletConfig.OT);
-	bullet->add<CCollision>(m_bulletConfig.CR);
-	bullet->add<CLifespan>(m_bulletConfig.L);
 }
 
 void Game::spawnSpecialWeapon(std::shared_ptr<Entity> entity, const Vec2f& target)
 {
-	auto& entityTransform = entity->get<CTransform>();
-	Vec2f diff = target - entityTransform.pos;
-	float angle = std::atan2f(diff.y, diff.x);
 
-	Vec2f centerDir(std::cos(angle), std::sin(angle));
-	spawnBullet(entity, entityTransform.pos + centerDir);
-
-	const float SPREAD_ANGLE = 5.0f * (2 * 3.14159 / 360.0f);
-	Vec2f leftDir(std::cos(angle - SPREAD_ANGLE), std::sin(angle - SPREAD_ANGLE));
-	spawnBullet(entity, entityTransform.pos + leftDir);
-
-	Vec2f rightDir(std::cos(angle + SPREAD_ANGLE), std::sin(angle + SPREAD_ANGLE));
-	spawnBullet(entity, entityTransform.pos + rightDir);
 }
 
 void Game::sMovement()
@@ -195,171 +117,21 @@ void Game::sMovement()
 
 void Game::sLifespan()
 {
-	for (auto& entity : m_entities.getEntities())
-	{
-		if (!entity->has<CLifespan>()) continue;
 
-		auto& entityLifespan = entity->get<CLifespan>();
-		auto& entityShape = entity->get<CShape>();
-
-		sf::Color curFillColor = entityShape.circle.getFillColor();
-		sf::Color curOutlineColor = entityShape.circle.getOutlineColor();
-
-		float lifespanRatio = (float)entityLifespan.remaining / (float)entityLifespan.lifespan;
-		curFillColor.a = lifespanRatio * 255;
-		curOutlineColor.a = lifespanRatio * 255;
-
-		entityShape.circle.setFillColor(curFillColor);
-		entityShape.circle.setOutlineColor(curOutlineColor);
-
-		entityLifespan.remaining--;
-		if (entityLifespan.remaining <= 0)
-		{
-			entity->destroy();
-		}
-	}
 }
 
 void Game::sCollision()
 {
-	for (auto& bullet : m_entities.getEntities("bullet"))
-	{
-		auto& bulletTransform = bullet->get<CTransform>();
-		auto& bulletCollision = bullet->get<CCollision>();
 
-		for (auto& enemy : m_entities.getEntities("enemy"))
-		{
-			auto& enemyTransform = enemy->get<CTransform>();
-			auto& enemyCollision = enemy->get<CCollision>();
-
-			if (enemyTransform.pos.distToSquared(bulletTransform.pos)
-				< (enemyCollision.radius + bulletCollision.radius)
-				* (enemyCollision.radius + bulletCollision.radius))
-			{
-				m_score += enemy->get<CScore>().score;
-				spawnSmallEnemies(enemy);
-				bullet->destroy();
-			}
-		}
-
-		for (auto& enemySmall : m_entities.getEntities("enemySmall"))
-		{
-			auto& enemyTransform = enemySmall->get<CTransform>();
-			auto& enemyCollision = enemySmall->get<CCollision>();
-
-			if (enemyTransform.pos.distToSquared(bulletTransform.pos)
-				< (enemyCollision.radius + bulletCollision.radius)
-				* (enemyCollision.radius + bulletCollision.radius))
-			{
-				m_score += enemySmall->get<CScore>().score;
-				enemySmall->destroy();
-				bullet->destroy();
-			}
-		}
-	}
-	auto& playerTransform = player()->get<CTransform>();
-	auto& playerShape = player()->get<CShape>();
-	auto& playerCollision = player()->get<CCollision>();
-	for (auto& enemy : m_entities.getEntities("enemy"))
-	{
-		auto& enemyTransform = enemy->get<CTransform>();
-		auto& enemyCollision = enemy->get<CCollision>();
-
-		if (enemyTransform.pos.distToSquared(playerTransform.pos)
-			< (enemyCollision.radius + playerCollision.radius)
-			* (enemyCollision.radius + playerCollision.radius))
-		{
-			spawnSmallEnemies(enemy);
-			playerShape.circle.setPointCount(playerShape.circle.getPointCount() - 1);
-		}
-
-		for (auto& otherEnemy : m_entities.getEntities("enemy"))
-		{
-			if (enemy->id() == otherEnemy->id()) continue;
-
-			auto& otherEnemyTransform = otherEnemy->get<CTransform>();
-			auto& otherEnemyCollision = otherEnemy->get<CCollision>();
-
-			if (enemyTransform.pos.distToSquared(otherEnemyTransform.pos)
-				< (enemyCollision.radius + otherEnemyCollision.radius)
-				* (enemyCollision.radius + otherEnemyCollision.radius))
-			{
-				spawnSmallEnemies(otherEnemy);
-			}
-		}
-	}
-
-	for (auto& enemy : m_entities.getEntities("enemySmall"))
-	{
-		auto& enemyTransform = enemy->get<CTransform>();
-		auto& enemyCollision = enemy->get<CCollision>();
-
-		if (enemyTransform.pos.distToSquared(playerTransform.pos)
-			< (enemyCollision.radius + playerCollision.radius)
-			* (enemyCollision.radius + playerCollision.radius))
-		{
-			enemy->destroy();
-			playerShape.circle.setPointCount(playerShape.circle.getPointCount() - 1);
-		}
-	}
-
-	// entities bounce off walls
-	for (auto& entity : m_entities.getEntities())
-	{
-		auto& entityTransform = entity->get<CTransform>();
-		auto& entityCollision = entity->get<CCollision>();
-		if (entityTransform.pos.x <= entityCollision.radius ||
-			entityTransform.pos.x >= m_windowConfig.fW - entityCollision.radius)
-		{
-			entityTransform.velocity.x *= -1;
-		}
-		if (entityTransform.pos.y <= entityCollision.radius ||
-			entityTransform.pos.y >= m_windowConfig.fH - entityCollision.radius)
-		{
-			entityTransform.velocity.y *= -1;
-		}
-	}
-
-	if (playerShape.circle.getPointCount() < 3)
-	{
-		m_running = false;
-	}
 }
 
 void Game::sEnemySpawner()
 {
-	if (m_currentFrame - m_lastEnemySpawnTime > m_enemyConfig.SI)
-	{
-		spawnEnemy();
-	}
 }
 
 void Game::sGUI()
 {
 	ImGui::Begin("Geometry Wars");
-	
-	if (ImGui::BeginTabBar("MyTabBar"))
-	{
-		if (ImGui::BeginTabItem("Entity"))
-		{
-			if (ImGui::CollapsingHeader("All Entities"))
-			{
-				for (auto& entity : m_entities.getEntities())
-				{
-					ImGui::PushID(entity->id());
-					if (ImGui::Button("Delete"))
-					{
-						entity->destroy();
-					}
-					ImGui::SameLine();
-					ImGui::Text("%d %s", entity->id(), entity->tag().c_str());
-					ImGui::PopID();
-				}
-			}
-			ImGui::EndTabItem();
-		}
-		ImGui::EndTabBar();
-	}
 
 	ImGui::End();
 }
@@ -379,7 +151,6 @@ void Game::sRender()
 
 		m_window.draw(entityShape.circle);
 	}
-	m_text.setString("Score: " + std::to_string(m_score));
 	m_window.draw(m_text);
 
 	ImGui::SFML::Render(m_window);
@@ -439,24 +210,6 @@ void Game::sUserInput()
 				break;
 			case sf::Keyboard::Scancode::D:
 				playerInput.right = false;
-				break;
-			default: break;
-			}
-		}
-
-		if (const auto* mousePressed = event->getIf<sf::Event::MouseButtonPressed>())
-		{
-			if (ImGui::GetIO().WantCaptureMouse) { continue; }
-
-			switch (mousePressed->button)
-			{
-			case sf::Mouse::Button::Left:
-				spawnBullet(player(),
-					Vec2f(mousePressed->position.x, mousePressed->position.y));
-				break;
-			case sf::Mouse::Button::Right:
-				spawnSpecialWeapon(player(),
-					Vec2f(mousePressed->position.x, mousePressed->position.y));
 				break;
 			default: break;
 			}
