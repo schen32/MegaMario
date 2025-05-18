@@ -25,6 +25,20 @@ public:
 		return sf::Vector2<T>(x, y);
 	}
 
+	// Constructor for any SFML vector type
+	template <typename U>
+	Vec2(const sf::Vector2<U>& vec)
+		: x(static_cast<T>(vec.x)), y(static_cast<T>(vec.y))
+	{
+	}
+
+	// Conversion operator to any SFML vector type
+	template <typename U>
+	operator sf::Vector2<U>() const
+	{
+		return sf::Vector2<U>(static_cast<U>(x), static_cast<U>(y));
+	}
+
 	Vec2 operator + (const Vec2& rhs) const
 	{
 		return Vec2(x + rhs.x, y + rhs.y);

@@ -10,8 +10,8 @@ Game::Game(const std::string& config)
 
 void Game::init(const std::string& path)
 {
-	m_window.create(sf::VideoMode({ m_windowConfig.uW, m_windowConfig.uH }), "Mega Mario");
-	m_window.setFramerateLimit(m_windowConfig.FR);
+	m_window.create(sf::VideoMode({ 1280, 720 }), "Mega Mario");
+	m_window.setFramerateLimit(60);
 
 	ImGui::SFML::Init(m_window);
 
@@ -63,12 +63,8 @@ void Game::spawnPlayer()
 {
 	auto player = m_entities.addEntity("player");
 
-	player->add<CTransform>(Vec2f(m_windowConfig.fW, m_windowConfig.fH) / 2,
+	player->add<CTransform>(Vec2f(m_window.getSize()) / 2,
 		Vec2f(0.0f, 0.0f), 0.0f);
-	player->add<CShape>(m_playerConfig.SR, m_playerConfig.V,
-		sf::Color(m_playerConfig.FR, m_playerConfig.FG, m_playerConfig.FB),
-		sf::Color(m_playerConfig.OR, m_playerConfig.OG, m_playerConfig.OB),
-		m_playerConfig.OT);
 	player->add<CInput>();
 }
 
@@ -143,13 +139,8 @@ void Game::sRender()
 	for (auto& entity : m_entities.getEntities())
 	{
 		auto& entityTransform = entity->get<CTransform>();
-		auto& entityShape = entity->get<CShape>();
 
-		entityShape.circle.setPosition(entityTransform.pos);
-		entityTransform.angle += 1.0f;
-		entityShape.circle.setRotation(sf::degrees(entityTransform.angle));
-
-		m_window.draw(entityShape.circle);
+		// m_window.draw();
 	}
 	m_window.draw(m_text);
 
