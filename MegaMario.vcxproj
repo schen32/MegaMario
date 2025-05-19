@@ -195,6 +195,9 @@
     <ClInclude Include="imgui\imstb_truetype.h" />
     <ClInclude Include="src\Vec2.hpp" />
   </ItemGroup>
+  <ItemGroup>
+    <Text Include="assets\config.txt" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

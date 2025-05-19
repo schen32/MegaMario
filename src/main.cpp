@@ -1,9 +1,9 @@
 #include <SFML/Graphics.hpp>
 
-#include "game.h"
+#include "GameEngine.h"
 
 int main()
 {
-    Game g("config.txt");
+    GameEngine g("assets/config.txt");
     g.run();
 }

@@ -46,7 +46,7 @@ public:
 	Assets() = default;
 	void loadFromFile(const std::string& path)
 	{
-		auto file = std::ifstream("path");
+		auto file = std::ifstream(path);
 		std::string str;
 		while (file.good())
 		{
