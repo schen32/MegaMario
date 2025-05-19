@@ -14,13 +14,7 @@ Scene_Menu::Scene_Menu(GameEngine* gameEngine)
 
 void Scene_Menu::init()
 {
-	m_title = "MegaMario";
-	m_menuStrings.push_back("Start");
-	m_menuStrings.push_back("Options");
-
-	m_levelPaths.push_back("map_home.txt");
-
-	m_menuText.setFont(m_game->assets().getFont("PixelOperator8"));
+	
 }
 
 void Scene_Menu::update()
@@ -40,7 +34,5 @@ void Scene_Menu::sDoAction(const Action& action)
 
 void Scene_Menu::sRender()
 {
-	auto& window = m_game->window();
-	window.clear(sf::Color::Blue);
-	window.display();
+	
 }

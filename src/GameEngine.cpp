@@ -20,7 +20,10 @@ void GameEngine::init(const std::string& path)
 		sf::Style::Titlebar | sf::Style::Close);
 	m_window.setFramerateLimit(60);
 
-	ImGui::SFML::Init(m_window);
+	if (!ImGui::SFML::Init(m_window))
+	{
+		std::cerr << "Could not open window." << std::endl;
+	}
 
 	changeScene("MENU", std::make_shared<Scene_Menu>(this));
 }
@@ -148,5 +151,6 @@ void GameEngine::update()
 	currentScene()->simulate(m_simulationSpeed);
 	currentScene()->sRender();
 
+	ImGui::SFML::Render(m_window);
 	m_window.display();
 }
