@@ -115,13 +115,10 @@ void GameEngine::changeScene(const std::string& sceneName, std::shared_ptr<Scene
 	{
 		m_sceneMap[sceneName] = scene;
 	}
-	else
+	else if (m_sceneMap.find(sceneName) == m_sceneMap.end())
 	{
-		if (m_sceneMap.find(sceneName) == m_sceneMap.end())
-		{
-			std::cerr << "Warning: Scene does not exist: " << sceneName << std::endl;
-			return;
-		}
+		std::cerr << "Warning: Scene does not exist: " << sceneName << std::endl;
+		return;
 	}
 
 	if (endCurrentScene)

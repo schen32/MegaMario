@@ -169,6 +169,7 @@
     <ClCompile Include="src\main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\Physics.hpp" />
     <ClInclude Include="src\Scene_Menu.h" />
     <ClInclude Include="src\Scene.hpp" />
     <ClInclude Include="src\GameEngine.h" />
