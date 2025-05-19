@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Scene.hpp"
+#include "Scene.h"
 #include "Assets.hpp"
 
 #include "imgui.h"
