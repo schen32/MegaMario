@@ -4,6 +4,7 @@
 
 #include <vector>
 #include <SFML/Graphics.hpp>
+#include <cmath>
 
 class Animation
 {

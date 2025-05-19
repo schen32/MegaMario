@@ -1,6 +1,8 @@
 #pragma once
 
 #include "Entity.hpp"
+#include <vector>
+#include <unordered_map>
 
 using EntityVec = std::vector<std::shared_ptr<Entity>>;
 

@@ -2,6 +2,8 @@
 
 #include "Animation.hpp"
 #include <fstream>
+#include <iostream>
+#include <cassert>
 
 class Assets
 {

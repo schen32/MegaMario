@@ -1,6 +1,7 @@
 #include "GameEngine.h"
 #include "Assets.hpp"
 #include "Scene_Menu.h"
+#include "Scene_Play.h"
 
 #include <fstream>
 #include <iostream>
@@ -14,7 +15,7 @@ void GameEngine::init(const std::string& path)
 {
 	m_assets.loadFromFile(path);
 
-	int wWidth = 0, wHeight = 0;
+	unsigned int wWidth = 0, wHeight = 0;
 	m_window.create(sf::VideoMode({ wWidth, wHeight }), "MegaMario",
 		sf::Style::Titlebar | sf::Style::Close);
 	m_window.setFramerateLimit(60);
@@ -74,7 +75,7 @@ void GameEngine::sUserInput()
 		
 		if (const auto* keyPressed = event->getIf<sf::Event::KeyPressed>())
 		{
-			if (currentScene()->getActionMap().find(keyPressed->scancode) ==
+			if (currentScene()->getActionMap().find(static_cast<int>(keyPressed->scancode)) ==
 				currentScene()->getActionMap().end())
 			{
 				continue;
@@ -83,7 +84,7 @@ void GameEngine::sUserInput()
 			(
 				Action
 				(
-				currentScene()->getActionMap().at(keyPressed->scancode),
+				currentScene()->getActionMap().at(static_cast<int>(keyPressed->scancode)),
 				"START"
 				)
 			);
@@ -91,7 +92,7 @@ void GameEngine::sUserInput()
 
 		if (const auto* keyReleased = event->getIf<sf::Event::KeyReleased>())
 		{
-			if (currentScene()->getActionMap().find(keyReleased->scancode) ==
+			if (currentScene()->getActionMap().find(static_cast<int>(keyReleased->scancode)) ==
 				currentScene()->getActionMap().end())
 			{
 				continue;
@@ -100,7 +101,7 @@ void GameEngine::sUserInput()
 			(
 				Action
 				(
-					currentScene()->getActionMap().at(keyReleased->scancode),
+					currentScene()->getActionMap().at(static_cast<int>(keyReleased->scancode)),
 					"END"
 				)
 			);
