@@ -8,6 +8,7 @@
 
 class Animation
 {
+public:
 	sf::Texture m_texture;
 	sf::Sprite m_sprite = sf::Sprite(m_texture);
 	size_t m_frameCount = 1; // total number of frames of animation
@@ -17,7 +18,6 @@ class Animation
 	Vec2<size_t> m_size = { 1, 1 }; // size of the animation frame
 	std::string m_name = "none";
 
-public:
 	Animation() = default;
 	Animation(const std::string& name, const sf::Texture& t)
 		: Animation(name, t, 1, 0) { }
@@ -34,41 +34,11 @@ public:
 
 	void update()
 	{
-		if (m_speed > 0)
-		{
-			m_currentFrame++;
-			size_t animFrame = (m_currentFrame / m_speed) % m_frameCount;
-			m_sprite.setTextureRect(sf::IntRect(sf::Vector2i(animFrame * m_size.x, 0)
-				, m_size));
-		}
+		
 	}
 
 	bool hasEnded() const
 	{
-		if (m_currentFrame == m_frameCount * m_speed)
-		{
-			return true;
-		}
-		return false;
-	}
-
-	const std::string& getName() const
-	{
-		return m_name;
-	}
-
-	const Vec2<size_t>& getSize() const
-	{
-		return m_size;
-	}
-
-	sf::Sprite& getSprite()
-	{
-		return m_sprite;
-	}
-
-	const sf::Sprite& getSprite() const
-	{
-		return m_sprite;
+		
 	}
 };

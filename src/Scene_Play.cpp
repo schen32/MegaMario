@@ -21,7 +21,16 @@ Scene_Play::Scene_Play(GameEngine* gameEngine, const std::string& levelPath)
 
 void Scene_Play::init(const std::string& levelPath)
 {
+	registerAction(sf::Keyboard::Scan::P, "PAUSE");
+	registerAction(sf::Keyboard::Scan::Escape, "QUIT");
+	registerAction(sf::Keyboard::Scan::T, "TOGGLE_TEXTURE");
+	registerAction(sf::Keyboard::Scan::C, "TOGGLE_COLLISION");
+	registerAction(sf::Keyboard::Scan::G, "TOGGLE_GRID");
 
+	m_gridText.setCharacterSize(12);
+	m_gridText.setFont(m_game->assets().getFont("PixelOperator8"));
+
+	loadLevel(levelPath);
 }
 
 void Scene_Play::loadLevel(const std::string& filename)
@@ -43,7 +52,7 @@ void Scene_Play::spawnPlayer()
 
 void Scene_Play::update()
 {
-
+	
 }
 
 void Scene_Play::sMovement()

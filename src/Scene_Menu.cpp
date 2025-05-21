@@ -19,7 +19,7 @@ void Scene_Menu::init()
 
 void Scene_Menu::update()
 {
-	sRender();
+	
 }
 
 void Scene_Menu::onEnd()
@@ -34,5 +34,5 @@ void Scene_Menu::sDoAction(const Action& action)
 
 void Scene_Menu::sRender()
 {
-	
+
 }

@@ -29,7 +29,7 @@ const ActionMap& Scene::getActionMap() const
 	return m_actionMap;
 }
 
-void Scene::registerAction(int keyCode, const std::string& name)
+void Scene::registerAction(sf::Keyboard::Scan keyCode, const std::string& name)
 {
 	m_actionMap[keyCode] = name;
 }

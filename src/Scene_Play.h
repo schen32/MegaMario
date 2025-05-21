@@ -47,7 +47,7 @@ protected:
 public:
 
 	Scene_Play() = default;
-	Scene_Play(GameEngine* gameEngine, const std::string& levelPath);
+	Scene_Play(GameEngine* gameEngine, const std::string& levelPath = "");
 
 	void sRender();
 };

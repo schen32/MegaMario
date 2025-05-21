@@ -7,7 +7,7 @@
 
 class GameEngine;
 
-using ActionMap = std::unordered_map<int, std::string>;
+using ActionMap = std::unordered_map<sf::Keyboard::Scan, std::string>;
 
 class Scene
 {
@@ -32,7 +32,7 @@ public:
 
 	virtual void doAction(const Action& action);
 	void simulate(const size_t frames);
-	void registerAction(int inputKey, const std::string& actionName);
+	void registerAction(sf::Keyboard::Scan inputKey, const std::string& actionName);
 
 	size_t width() const;
 	size_t height() const;
