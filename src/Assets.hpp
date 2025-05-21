@@ -75,4 +75,22 @@ public:
 			}
 		}
 	}
+
+	const sf::Texture& getTexture(const std::string& textureName) const
+	{
+		assert(m_textureMap.find(textureName) != m_textureMap.end());
+		return m_textureMap.at(textureName);
+	}
+
+	const Animation& getAnimation(const std::string& animationName) const
+	{
+		assert(m_animationMap.find(animationName) != m_animationMap.end());
+		return m_animationMap.at(animationName);
+	}
+
+	const sf::Font& getFont(const std::string& fontName) const
+	{
+		assert(m_fontMap.find(fontName) != m_fontMap.end());
+		return m_fontMap.at(fontName);
+	}
 };
