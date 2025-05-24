@@ -31,7 +31,16 @@ void Scene_Play::init(const std::string& levelPath)
 	m_gridText.setFont(m_game->assets().getFont("Pixel"));
 	m_gridText.setString("Lets Play");
 
+	auto entity = m_entityManager.addEntity("coin");
+	entity->add<CTransform>(Vec2f(200, 200));
+	entity->add<CAnimation>(m_game->assets().getAnimation("AniCoin"), true);
+
 	loadLevel(levelPath);
+}
+
+Vec2f Scene_Play::gridToMidPixel(float gridX, float gridY, std::shared_ptr<Entity> entity)
+{
+	return Vec2f(0, 0);
 }
 
 void Scene_Play::loadLevel(const std::string& filename)
@@ -106,5 +115,12 @@ void Scene_Play::sRender()
 	auto& window = m_game->window();
 	window.clear();
 
-	window.draw(m_gridText);
+	for (auto& entity : m_entityManager.getEntities())
+	{
+		auto& transform = entity->get<CTransform>();
+		auto& sprite = entity->get<CAnimation>().animation.m_sprite;
+
+		sprite.setPosition(transform.pos);
+		window.draw(sprite);
+	}
 }

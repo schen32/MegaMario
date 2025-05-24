@@ -1,0 +1,4 @@
+Font Pixel assets/fonts/PixelOperator8.ttf
+Font Pixel-Bold assets/fonts/PixelOperator8-Bold.ttf
+Texture TexCoin assets/sprites/coin.png
+Animation AniCoin TexCoin 12 4

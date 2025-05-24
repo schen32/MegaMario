@@ -35,6 +35,7 @@ protected:
 	void spawnPlayer();
 	std::shared_ptr<Entity> player();
 	void sDoAction(const Action& action);
+	Vec2f gridToMidPixel(float gridX, float gridY, std::shared_ptr<Entity> entity);
 
 	void sMovement();
 	void sAI();
