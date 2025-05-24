@@ -13,7 +13,6 @@ public:
 	sf::Sprite m_sprite = sf::Sprite(m_texture);
 	size_t m_frameCount = 1; // total number of frames of animation
 	size_t m_currentFrame = 0; // the current frame of animation being played
-	size_t m_gameFrame = 0; // the game frame this animation was created on
 	size_t m_speed = 0; // the speed or duration to play this animation
 	Vec2<size_t> m_size = { 1, 1 }; // size of the animation frame
 	std::string m_name = "none";

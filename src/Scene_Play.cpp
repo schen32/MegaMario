@@ -102,5 +102,5 @@ void Scene_Play::sGui()
 
 void Scene_Play::sRender()
 {
-	
+
 }

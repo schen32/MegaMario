@@ -57,21 +57,4 @@ public:
 		float yOverlap = aBB.halfSize.y + bBB.halfSize.y - delta.y;
 		return Vec2f(xOverlap, yOverlap);
 	}
-
-	bool static IsInside(const Vec2f& pos,
-		std::shared_ptr<Entity> e)
-	{
-		sf::FloatRect eGlobalBounds = e->get<CAnimation>().animation.getSprite().getGlobalBounds();
-		if (eGlobalBounds.contains(pos))
-		{
-			return true;
-		}
-		return false;
-	}
-
-	//Intersect LineIntersect(const Vec2f& a, const Vec2f& b,
-	//	const Vec2f& c, const Vec2f& d);
-
-	//bool EntityIntersect(const Vec2f& a, const Vec2f& b,
-	//	std::shared_ptr<Entity> e);
 };
