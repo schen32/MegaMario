@@ -195,6 +195,7 @@
   </ItemGroup>
   <ItemGroup>
     <Text Include="assets\config.txt" />
+    <Text Include="assets\play.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -28,7 +28,7 @@ void Scene_Play::init(const std::string& levelPath)
 	registerAction(sf::Keyboard::Scan::G, "TOGGLE_GRID");
 
 	m_gridText.setCharacterSize(12);
-	m_gridText.setFont(m_game->assets().getFont("PixelOperator8"));
+	m_gridText.setFont(m_game->assets().getFont("Pixel"));
 
 	loadLevel(levelPath);
 }

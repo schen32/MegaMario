@@ -1,1 +1,2 @@
-Font PixelOperator8 assets/fonts/PixelOperator8.ttf
+Font Pixel assets/fonts/PixelOperator8.ttf
+Font Pixel-Bold assets/fonts/PixelOperator8-Bold.ttf
