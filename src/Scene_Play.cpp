@@ -27,8 +27,9 @@ void Scene_Play::init(const std::string& levelPath)
 	registerAction(sf::Keyboard::Scan::C, "TOGGLE_COLLISION");
 	registerAction(sf::Keyboard::Scan::G, "TOGGLE_GRID");
 
-	m_gridText.setCharacterSize(12);
+	m_gridText.setCharacterSize(40);
 	m_gridText.setFont(m_game->assets().getFont("Pixel"));
+	m_gridText.setString("Lets Play");
 
 	loadLevel(levelPath);
 }
@@ -102,5 +103,8 @@ void Scene_Play::sGui()
 
 void Scene_Play::sRender()
 {
+	auto& window = m_game->window();
+	window.clear();
 
+	window.draw(m_gridText);
 }

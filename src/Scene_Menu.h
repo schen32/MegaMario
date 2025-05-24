@@ -15,6 +15,7 @@ protected:
 	std::vector<std::string> m_levelPaths;
 	sf::Font m_menuFont;
 	sf::Text m_menuText = sf::Text(m_menuFont);
+	sf::RectangleShape m_menuTextBackground;
 	size_t m_selectedMenuIndex = 0;
 
 	void init();
