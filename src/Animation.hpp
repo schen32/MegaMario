@@ -21,9 +21,9 @@ public:
 	Animation(const std::string& name, const sf::Texture& t)
 		: Animation(name, t, 1, 0) { }
 	Animation(const std::string& name, const sf::Texture& t, size_t frameCount, size_t speed)
-		: m_name(name), m_sprite(t)
+		: m_name(name), m_texture(t), m_sprite(t)
 		, m_frameCount(frameCount), m_currentFrame(0), m_speed(speed)
-	{ }
+	{}
 
 	void update()
 	{
