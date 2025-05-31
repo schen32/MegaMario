@@ -41,11 +41,7 @@ Vec2f Scene_Play::gridToMidPixel(float gridX, float gridY, std::shared_ptr<Entit
 
 void Scene_Play::loadLevel(const std::string& filename)
 {
-	auto entity = m_entityManager.addEntity("coin");
-	entity->add<CTransform>(Vec2f(200, 200));
-
-	auto& coinAnimation = m_game->assets().getAnimation("AniCoin");
-	entity->add<CAnimation>(coinAnimation, true);
+	spawnPlayer();
 }
 
 std::shared_ptr<Entity> Scene_Play::player()
@@ -57,12 +53,15 @@ std::shared_ptr<Entity> Scene_Play::player()
 
 void Scene_Play::spawnPlayer()
 {
-
+	auto entity = m_entityManager.addEntity("player");
+	entity->add<CTransform>(Vec2f(200, 200));
+	entity->add<CAnimation>(m_game->assets().getAnimation("AniBiker"), true);
 }
 
 void Scene_Play::update()
 {
 	m_entityManager.update();
+	sAnimation();
 }
 
 void Scene_Play::sMovement()
@@ -92,7 +91,14 @@ void Scene_Play::sDoAction(const Action& action)
 
 void Scene_Play::sAnimation()
 {
+	for (auto& entity : m_entityManager.getEntities())
+	{
+		if (!entity->has<CAnimation>())
+			continue;
 
+		auto& eAnimation = entity->get<CAnimation>();
+		eAnimation.animation.update();
+	}
 }
 
 void Scene_Play::sCamera()

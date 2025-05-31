@@ -33,7 +33,7 @@ void Scene_Menu::init()
 
 void Scene_Menu::update()
 {
-	sRender();
+	
 }
 
 void Scene_Menu::onEnd()
