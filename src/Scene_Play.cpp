@@ -27,6 +27,11 @@ void Scene_Play::init(const std::string& levelPath)
 	registerAction(sf::Keyboard::Scan::C, "TOGGLE_COLLISION");
 	registerAction(sf::Keyboard::Scan::G, "TOGGLE_GRID");
 
+	registerAction(sf::Keyboard::Scan::A, "LEFT");
+	registerAction(sf::Keyboard::Scan::D, "RIGHT");
+
+	m_playerConfig = { 200, 200, 0, 0, 3.0f, 0, "" };
+
 	m_gridText.setCharacterSize(40);
 	m_gridText.setFont(m_game->assets().getFont("Pixel"));
 	m_gridText.setString("Lets Play");
@@ -42,6 +47,27 @@ Vec2f Scene_Play::gridToMidPixel(float gridX, float gridY, std::shared_ptr<Entit
 void Scene_Play::loadLevel(const std::string& filename)
 {
 	spawnPlayer();
+
+	auto file = std::ifstream(m_levelPath);
+	std::string tileType, aniName, gridXstr, gridYstr;
+	while (file >> tileType)
+	{
+		file >> aniName >> gridXstr >> gridYstr;
+		float gridX = std::stof(gridXstr);
+		float gridY = std::stof(gridYstr);
+
+		if (tileType == "Tile")
+		{
+			auto entity = m_entityManager.addEntity(aniName);
+			entity->add<CTransform>(gridToMidPixel(gridX, gridY, entity));
+			entity->add<CAnimation>(m_game->assets().getAnimation(aniName), false);
+		}
+		else if (tileType == "Dec")
+		{
+
+		}
+	}
+
 }
 
 std::shared_ptr<Entity> Scene_Play::player()
@@ -54,19 +80,24 @@ std::shared_ptr<Entity> Scene_Play::player()
 void Scene_Play::spawnPlayer()
 {
 	auto entity = m_entityManager.addEntity("player");
-	entity->add<CTransform>(Vec2f(200, 200));
-	entity->add<CAnimation>(m_game->assets().getAnimation("AniBiker"), true);
+	entity->add<CTransform>(Vec2f(m_playerConfig.X, m_playerConfig.Y));
+	entity->add<CAnimation>(m_game->assets().getAnimation("BikerIdle"), true);
 }
 
 void Scene_Play::update()
 {
 	m_entityManager.update();
+	sMovement();
 	sAnimation();
 }
 
 void Scene_Play::sMovement()
 {
-
+	for (auto& entity : m_entityManager.getEntities())
+	{
+		auto& eTransform = entity->get<CTransform>();
+		eTransform.pos += eTransform.velocity;
+	}
 }
 
 void Scene_Play::sAI()
@@ -86,7 +117,29 @@ void Scene_Play::sCollision()
 
 void Scene_Play::sDoAction(const Action& action)
 {
-
+	auto& p = player()->get<CTransform>();
+	if (action.m_type == "START")
+	{
+		if (action.m_name == "LEFT")
+		{
+			p.velocity.x = -m_playerConfig.SPEED;
+		}
+		else if (action.m_name == "RIGHT")
+		{
+			p.velocity.x = m_playerConfig.SPEED;
+		}
+	}
+	else if (action.m_type == "END")
+	{
+		if (action.m_name == "LEFT")
+		{
+			p.velocity.x = 0;
+		}
+		if (action.m_name == "RIGHT")
+		{
+			p.velocity.x = 0;
+		}
+	}
 }
 
 void Scene_Play::sAnimation()

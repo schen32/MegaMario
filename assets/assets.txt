@@ -1,4 +1,6 @@
 Font FutureMillennium assets/0Fonts/FutureMillennium.ttf
 Font Pixel assets/fonts/PixelOperator8.ttf
-Texture TexBiker assets/1Biker/Biker_idle.png
-Animation AniBiker TexBiker 4 10
+Texture TexBikerIdle assets/1Biker/Biker_idle.png
+Texture TexGround assets/1Tiles/IndustrialTile_05.png
+Animation BikerIdle TexBikerIdle 4 10
+Animation Ground TexGround 1 0
