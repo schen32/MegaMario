@@ -57,6 +57,9 @@ void Scene_Play::loadLevel(const std::string& filename)
 	m_entityManager = EntityManager();
 	spawnPlayer();
 
+	auto background = m_entityManager.addEntity("Background");
+	background->add<CAnimation>(m_game->assets().getAnimation("Background"), true);
+
 	std::ifstream file(m_levelPath);
 	std::string tileType;
 	while (file >> tileType)
@@ -68,17 +71,16 @@ void Scene_Play::loadLevel(const std::string& filename)
 
 		if (tileType == "Tile")
 		{
-			auto entity = m_entityManager.addEntity("Tile");
-			auto& eAnimation = entity->add<CAnimation>(m_game->assets().getAnimation(aniName), true);
-			entity->add<CTransform>(gridToMidPixel(gridX, gridY, entity));
-			entity->add<CBoundingBox>(eAnimation.animation.m_size);
+			auto tile = m_entityManager.addEntity("Tile");
+			auto& eAnimation = tile->add<CAnimation>(m_game->assets().getAnimation(aniName), true);
+			tile->add<CTransform>(gridToMidPixel(gridX, gridY, tile));
+			tile->add<CBoundingBox>(eAnimation.animation.m_size);
 		}
 		else if (tileType == "Dec")
 		{
 
 		}
 	}
-
 }
 
 std::shared_ptr<Entity> Scene_Play::player()
@@ -104,6 +106,9 @@ void Scene_Play::update()
 	sAnimation();
 	sCollision();
 	sMovement();
+
+	if (player()->get<CTransform>().pos.y > height())
+		loadLevel(m_levelPath);
 }
 
 void Scene_Play::sMovement()
@@ -172,9 +177,8 @@ void Scene_Play::sCollision()
 					pTransform.pos.x -= overlap.x;
 				else
 					pTransform.pos.x += overlap.x;
-			
 			}
-			else if (prevOverlap.x > 0)
+			if (prevOverlap.x > 0)
 			{
 				pTransform.velocity.y = 0;
 				if (pTransform.prevPos.y < tileTransform.pos.y)
