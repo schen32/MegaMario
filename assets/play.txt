@@ -1,4 +1,7 @@
 Tile Ground 4 4
+Tile Ground 4 5
+Tile Ground 4 6
+Tile Ground 4 7
 Tile Ground 5 4
 Tile Ground 6 4
 Tile Ground 7 4
@@ -6,3 +9,6 @@ Tile Ground 8 4
 Tile Ground 9 4
 Tile Ground 10 4
 Tile Ground 11 4
+Tile Ground 11 5
+Tile Ground 11 6
+Tile Ground 11 7

@@ -29,8 +29,9 @@ void Scene_Play::init(const std::string& levelPath)
 
 	registerAction(sf::Keyboard::Scan::A, "LEFT");
 	registerAction(sf::Keyboard::Scan::D, "RIGHT");
+	registerAction(sf::Keyboard::Scan::W, "JUMP");
 
-	m_playerConfig = { 200, 200, 0, 0, 5.0f, 0, "" };
+	m_playerConfig = { 200, 200, 0, 0, 30.0f, 0, "" };
 
 	m_gridText.setCharacterSize(40);
 	m_gridText.setFont(m_game->assets().getFont("Pixel"));
@@ -93,8 +94,8 @@ void Scene_Play::spawnPlayer()
 	entity->add<CTransform>(Vec2f(m_playerConfig.X, m_playerConfig.Y));
 	auto& eAnimation = entity->add<CAnimation>(m_game->assets().getAnimation("BikerIdle"), true);
 	entity->add<CInput>();
-	entity->add<CGravity>(0.0981f);
-	entity->add<CBoundingBox>(eAnimation.animation.m_size);
+	entity->add<CGravity>(0.981f);
+	entity->add<CBoundingBox>(Vec2f(eAnimation.animation.m_size.x / 3, eAnimation.animation.m_size.y));
 }
 
 void Scene_Play::update()
@@ -112,9 +113,14 @@ void Scene_Play::sMovement()
 
 	pTransform.velocity.x = 0;
 	if (pInput.left)
-		pTransform.velocity.x -= m_playerConfig.SPEED;
+		pTransform.velocity.x -= 5;
 	if (pInput.right)
-		pTransform.velocity.x += m_playerConfig.SPEED;
+		pTransform.velocity.x += 5;
+	if (pInput.up && pInput.canJump)
+	{
+		pTransform.velocity.y -= 20;
+		pInput.canJump = false;
+	}
 
 	for (auto& entity : m_entityManager.getEntities())
 	{
@@ -125,6 +131,10 @@ void Scene_Play::sMovement()
 			auto& eGravity = entity->get<CGravity>();
 			eTransform.velocity.y += eGravity.gravity;
 		}
+		if (abs(eTransform.velocity.x) > m_playerConfig.SPEED)
+			eTransform.velocity.x = eTransform.velocity.x / abs(eTransform.velocity.x) * m_playerConfig.SPEED;
+		if (abs(eTransform.velocity.y) > m_playerConfig.SPEED)
+			eTransform.velocity.y = eTransform.velocity.y / abs(eTransform.velocity.y) * m_playerConfig.SPEED;
 
 		eTransform.prevPos = eTransform.pos;
 		eTransform.pos += eTransform.velocity;
@@ -153,16 +163,27 @@ void Scene_Play::sCollision()
 		{
 			Vec2f prevOverlap = Physics::GetPreviousOverlap(player(), tile);
 			auto& pTransform = player()->get<CTransform>();
-			
+			auto& tileTransform = tile->get<CTransform>();
+
 			if (prevOverlap.y > 0)
 			{
 				pTransform.velocity.x = 0;
-				pTransform.pos.x += overlap.x;
+				if (pTransform.prevPos.x < tileTransform.pos.x)
+					pTransform.pos.x -= overlap.x;
+				else
+					pTransform.pos.x += overlap.x;
+			
 			}
-			if (prevOverlap.x > 0)
+			else if (prevOverlap.x > 0)
 			{
 				pTransform.velocity.y = 0;
-				pTransform.pos.y -= overlap.y;
+				if (pTransform.prevPos.y < tileTransform.pos.y)
+				{
+					pTransform.pos.y -= overlap.y;
+					player()->get<CInput>().canJump = true;
+				}
+				else
+					pTransform.pos.y += overlap.y;
 			}
 		}
 
@@ -183,6 +204,10 @@ void Scene_Play::sDoAction(const Action& action)
 		{
 			pInput.right = true;
 		}
+		else if (action.m_name == "JUMP")
+		{
+			pInput.up = true;
+		}
 	}
 	else if (action.m_type == "END")
 	{
@@ -190,9 +215,13 @@ void Scene_Play::sDoAction(const Action& action)
 		{
 			pInput.left = false;
 		}
-		if (action.m_name == "RIGHT")
+		else if (action.m_name == "RIGHT")
 		{
 			pInput.right = false;
+		}
+		else if (action.m_name == "JUMP")
+		{
+			pInput.up = false;
 		}
 	}
 }
