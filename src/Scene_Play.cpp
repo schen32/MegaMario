@@ -30,7 +30,7 @@ void Scene_Play::init(const std::string& levelPath)
 	registerAction(sf::Keyboard::Scan::A, "LEFT");
 	registerAction(sf::Keyboard::Scan::D, "RIGHT");
 
-	m_playerConfig = { 200, 200, 0, 0, 3.0f, 0, "" };
+	m_playerConfig = { 200, 200, 0, 0, 5.0f, 0, "" };
 
 	m_gridText.setCharacterSize(40);
 	m_gridText.setFont(m_game->assets().getFont("Pixel"));
@@ -41,7 +41,14 @@ void Scene_Play::init(const std::string& levelPath)
 
 Vec2f Scene_Play::gridToMidPixel(float gridX, float gridY, std::shared_ptr<Entity> entity)
 {
-	return Vec2f(0, 0);
+	auto& eAnimation = entity->get<CAnimation>();
+	Vec2f eAniSize = eAnimation.animation.m_size;
+	
+	return Vec2f
+	(
+		gridX * eAniSize.x + eAniSize.x / 2,
+		m_game->window().getSize().y - gridY * eAniSize.y - eAniSize.y / 2
+	);
 }
 
 void Scene_Play::loadLevel(const std::string& filename)
@@ -59,8 +66,8 @@ void Scene_Play::loadLevel(const std::string& filename)
 		if (tileType == "Tile")
 		{
 			auto entity = m_entityManager.addEntity(aniName);
+			entity->add<CAnimation>(m_game->assets().getAnimation(aniName), true);
 			entity->add<CTransform>(gridToMidPixel(gridX, gridY, entity));
-			entity->add<CAnimation>(m_game->assets().getAnimation(aniName), false);
 		}
 		else if (tileType == "Dec")
 		{
@@ -93,6 +100,15 @@ void Scene_Play::update()
 
 void Scene_Play::sMovement()
 {
+	auto& pInput = player()->get<CInput>();
+	auto& pTransform = player()->get<CTransform>();
+
+	pTransform.velocity = { 0, 0 };
+	if (pInput.left)
+		pTransform.velocity.x -= m_playerConfig.SPEED;
+	if (pInput.right)
+		pTransform.velocity.x += m_playerConfig.SPEED;
+
 	for (auto& entity : m_entityManager.getEntities())
 	{
 		auto& eTransform = entity->get<CTransform>();
@@ -117,39 +133,51 @@ void Scene_Play::sCollision()
 
 void Scene_Play::sDoAction(const Action& action)
 {
-	auto& p = player()->get<CTransform>();
+	auto& pInput = player()->get<CInput>();
 	if (action.m_type == "START")
 	{
 		if (action.m_name == "LEFT")
 		{
-			p.velocity.x = -m_playerConfig.SPEED;
+			pInput.left = true;
 		}
 		else if (action.m_name == "RIGHT")
 		{
-			p.velocity.x = m_playerConfig.SPEED;
+			pInput.right = true;
 		}
 	}
 	else if (action.m_type == "END")
 	{
 		if (action.m_name == "LEFT")
 		{
-			p.velocity.x = 0;
+			pInput.left = false;
 		}
 		if (action.m_name == "RIGHT")
 		{
-			p.velocity.x = 0;
+			pInput.right = false;
 		}
 	}
 }
 
 void Scene_Play::sAnimation()
 {
+	auto& pInput = player()->get<CInput>();
+	auto& pAnimation = player()->get<CAnimation>();
+
+	if (pInput.left)
+		pAnimation.animation.m_sprite.setScale({ -1, 1 });
+	if (pInput.right)
+		pAnimation.animation.m_sprite.setScale({ 1, 1 });
+
 	for (auto& entity : m_entityManager.getEntities())
 	{
 		if (!entity->has<CAnimation>())
 			continue;
 
 		auto& eAnimation = entity->get<CAnimation>();
+		if (!eAnimation.repeat && eAnimation.animation.hasEnded())
+			entity->destroy();
+			continue;
+
 		eAnimation.animation.update();
 	}
 }
