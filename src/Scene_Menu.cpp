@@ -27,8 +27,6 @@ void Scene_Menu::init()
 	registerAction(sf::Keyboard::Scan::S, "DOWN");
 	registerAction(sf::Keyboard::Scan::D, "PLAY");
 	registerAction(sf::Keyboard::Scan::Escape, "QUIT");
-
-
 }
 
 void Scene_Menu::update()

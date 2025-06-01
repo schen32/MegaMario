@@ -47,27 +47,30 @@ Vec2f Scene_Play::gridToMidPixel(float gridX, float gridY, std::shared_ptr<Entit
 	return Vec2f
 	(
 		gridX * eAniSize.x + eAniSize.x / 2,
-		m_game->window().getSize().y - gridY * eAniSize.y - eAniSize.y / 2
+		height() - gridY * eAniSize.y - eAniSize.y / 2
 	);
 }
 
 void Scene_Play::loadLevel(const std::string& filename)
 {
+	m_entityManager = EntityManager();
 	spawnPlayer();
 
-	auto file = std::ifstream(m_levelPath);
-	std::string tileType, aniName, gridXstr, gridYstr;
+	std::ifstream file(m_levelPath);
+	std::string tileType;
 	while (file >> tileType)
 	{
+		std::string aniName, gridXstr, gridYstr;
 		file >> aniName >> gridXstr >> gridYstr;
 		float gridX = std::stof(gridXstr);
 		float gridY = std::stof(gridYstr);
 
 		if (tileType == "Tile")
 		{
-			auto entity = m_entityManager.addEntity(aniName);
-			entity->add<CAnimation>(m_game->assets().getAnimation(aniName), true);
+			auto entity = m_entityManager.addEntity("Tile");
+			auto& eAnimation = entity->add<CAnimation>(m_game->assets().getAnimation(aniName), true);
 			entity->add<CTransform>(gridToMidPixel(gridX, gridY, entity));
+			entity->add<CBoundingBox>(eAnimation.animation.m_size);
 		}
 		else if (tileType == "Dec")
 		{
@@ -88,14 +91,18 @@ void Scene_Play::spawnPlayer()
 {
 	auto entity = m_entityManager.addEntity("player");
 	entity->add<CTransform>(Vec2f(m_playerConfig.X, m_playerConfig.Y));
-	entity->add<CAnimation>(m_game->assets().getAnimation("BikerIdle"), true);
+	auto& eAnimation = entity->add<CAnimation>(m_game->assets().getAnimation("BikerIdle"), true);
+	entity->add<CInput>();
+	entity->add<CGravity>(0.0981f);
+	entity->add<CBoundingBox>(eAnimation.animation.m_size);
 }
 
 void Scene_Play::update()
 {
 	m_entityManager.update();
-	sMovement();
 	sAnimation();
+	sCollision();
+	sMovement();
 }
 
 void Scene_Play::sMovement()
@@ -103,7 +110,7 @@ void Scene_Play::sMovement()
 	auto& pInput = player()->get<CInput>();
 	auto& pTransform = player()->get<CTransform>();
 
-	pTransform.velocity = { 0, 0 };
+	pTransform.velocity.x = 0;
 	if (pInput.left)
 		pTransform.velocity.x -= m_playerConfig.SPEED;
 	if (pInput.right)
@@ -112,6 +119,14 @@ void Scene_Play::sMovement()
 	for (auto& entity : m_entityManager.getEntities())
 	{
 		auto& eTransform = entity->get<CTransform>();
+
+		if (entity->has<CGravity>())
+		{
+			auto& eGravity = entity->get<CGravity>();
+			eTransform.velocity.y += eGravity.gravity;
+		}
+
+		eTransform.prevPos = eTransform.pos;
 		eTransform.pos += eTransform.velocity;
 	}
 }
@@ -128,6 +143,30 @@ void Scene_Play::sStatus()
 
 void Scene_Play::sCollision()
 {
+	for (auto& tile : m_entityManager.getEntities("Tile"))
+	{
+		if (player()->id() == tile->id())
+			continue;
+
+		Vec2f overlap = Physics::GetOverlap(player(), tile);
+		if (overlap.x > 0 && overlap.y > 0)
+		{
+			Vec2f prevOverlap = Physics::GetPreviousOverlap(player(), tile);
+			auto& pTransform = player()->get<CTransform>();
+			
+			if (prevOverlap.y > 0)
+			{
+				pTransform.velocity.x = 0;
+				pTransform.pos.x += overlap.x;
+			}
+			if (prevOverlap.x > 0)
+			{
+				pTransform.velocity.y = 0;
+				pTransform.pos.y -= overlap.y;
+			}
+		}
+
+	}
 
 }
 
@@ -174,11 +213,9 @@ void Scene_Play::sAnimation()
 			continue;
 
 		auto& eAnimation = entity->get<CAnimation>();
+		eAnimation.animation.update();
 		if (!eAnimation.repeat && eAnimation.animation.hasEnded())
 			entity->destroy();
-			continue;
-
-		eAnimation.animation.update();
 	}
 }
 
