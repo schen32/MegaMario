@@ -13,7 +13,8 @@ using ComponentTuple = std::tuple<
 	CBoundingBox,
 	CAnimation,
 	CGravity,
-	CState
+	CState,
+	CScore
 >;
 
 class Entity

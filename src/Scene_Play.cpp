@@ -34,9 +34,10 @@ void Scene_Play::init(const std::string& levelPath)
 
 	m_playerConfig = { 300, 400, 0, 0, 30.0f, 0, "" };
 
-	m_gridText.setCharacterSize(40);
-	m_gridText.setFont(m_game->assets().getFont("Pixel"));
-	m_gridText.setString("Lets Play");
+	m_gridText.setCharacterSize(60);
+	m_gridText.setFont(m_game->assets().getFont("FutureMillennium"));
+	m_gridText.setOutlineThickness(5.0f);
+	m_gridText.setOutlineColor(sf::Color(86, 106, 137));
 
 	loadLevel(levelPath);
 }
@@ -92,6 +93,8 @@ void Scene_Play::loadLevel(const std::string& filename)
 
 		}
 	}
+
+	m_entityManager.update();
 }
 
 std::shared_ptr<Entity> Scene_Play::player()
@@ -103,12 +106,13 @@ std::shared_ptr<Entity> Scene_Play::player()
 
 void Scene_Play::spawnPlayer()
 {
-	auto entity = m_entityManager.addEntity("player");
-	entity->add<CTransform>(Vec2f(m_playerConfig.X, m_playerConfig.Y));
-	auto& eAnimation = entity->add<CAnimation>(m_game->assets().getAnimation("BikerIdle"), true);
-	entity->add<CInput>();
-	entity->add<CGravity>(0.8);
-	entity->add<CBoundingBox>(Vec2f(eAnimation.animation.m_size.x / 3, eAnimation.animation.m_size.y));
+	auto p = m_entityManager.addEntity("player");
+	p->add<CTransform>(Vec2f(m_playerConfig.X, m_playerConfig.Y));
+	auto& eAnimation = p->add<CAnimation>(m_game->assets().getAnimation("BikerIdle"), true);
+	p->add<CInput>();
+	p->add<CGravity>(0.8);
+	p->add<CBoundingBox>(Vec2f(eAnimation.animation.m_size.x / 3, eAnimation.animation.m_size.y));
+	p->add<CScore>();
 }
 
 void Scene_Play::update()
@@ -118,9 +122,9 @@ void Scene_Play::update()
 	sCollision();
 	sMovement();
 
+	player()->get<CScore>().score++;
 	if (player()->get<CTransform>().pos.y > height() || player()->get<CTransform>().pos.x < 0)
 		loadLevel(m_levelPath);
-		m_entityManager.update();
 }
 
 void Scene_Play::sMovement()
@@ -292,6 +296,9 @@ void Scene_Play::sRender()
 {
 	auto& window = m_game->window();
 	window.clear(sf::Color(204, 226, 225));
+
+	m_gridText.setString(std::to_string(player()->get<CScore>().score));
+	window.draw(m_gridText);
 
 	for (auto& entity : m_entityManager.getEntities())
 	{

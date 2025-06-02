@@ -92,3 +92,12 @@ public:
 	CState() = default;
 	CState(const std::string& s) : state(s) {}
 };
+
+class CScore : public Component
+{
+public:
+	int score = 0;
+
+	CScore() = default;
+	CScore(int s) : score(s) {}
+};
