@@ -47,8 +47,8 @@ public:
 		auto& aTransform = a->get<CTransform>();
 		auto& bTransform = b->get<CTransform>();
 
-		auto delta = Vec2f(abs(aTransform.prevPos.x - bTransform.pos.x),
-			abs(aTransform.prevPos.y - bTransform.pos.y));
+		auto delta = Vec2f(abs(aTransform.prevPos.x - bTransform.prevPos.x),
+			abs(aTransform.prevPos.y - bTransform.prevPos.y));
 
 		auto& aBB = a->get<CBoundingBox>();
 		auto& bBB = b->get<CBoundingBox>();

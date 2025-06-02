@@ -30,6 +30,7 @@ void Scene_Play::init(const std::string& levelPath)
 	registerAction(sf::Keyboard::Scan::A, "LEFT");
 	registerAction(sf::Keyboard::Scan::D, "RIGHT");
 	registerAction(sf::Keyboard::Scan::W, "JUMP");
+	registerAction(sf::Keyboard::Scan::Space, "JUMP");
 
 	m_playerConfig = { 300, 400, 0, 0, 30.0f, 0, "" };
 
@@ -83,7 +84,7 @@ void Scene_Play::loadLevel(const std::string& filename)
 		{
 			auto tile = m_entityManager.addEntity("Tile");
 			auto& eAnimation = tile->add<CAnimation>(m_game->assets().getAnimation(aniName), true);
-			tile->add<CTransform>(gridToMidPixel(gridX, gridY, tile));
+			tile->add<CTransform>(gridToMidPixel(gridX, gridY, tile), Vec2f(-1, 0), 0);
 			tile->add<CBoundingBox>(eAnimation.animation.m_size);
 		}
 		else if (tileType == "Dec")
@@ -117,8 +118,9 @@ void Scene_Play::update()
 	sCollision();
 	sMovement();
 
-	if (player()->get<CTransform>().pos.y > height())
+	if (player()->get<CTransform>().pos.y > height() || player()->get<CTransform>().pos.x < 0)
 		loadLevel(m_levelPath);
+		m_entityManager.update();
 }
 
 void Scene_Play::sMovement()
@@ -126,13 +128,11 @@ void Scene_Play::sMovement()
 	auto& pInput = player()->get<CInput>();
 	auto& pTransform = player()->get<CTransform>();
 
-	pTransform.velocity.x = 0;
+	pTransform.velocity.x = -1;
 	if (pInput.left)
 		pTransform.velocity.x -= 5;
 	if (pInput.right)
 		pTransform.velocity.x += 5;
-	if (abs(pTransform.velocity.x) > 0 && pTransform.velocity.y == 0)
-		player()->get<CState>().state = "running";
 
 	if (pInput.up && pInput.canJump)
 	{
@@ -199,7 +199,7 @@ void Scene_Play::sCollision()
 				{
 					pTransform.pos.y -= overlap.y;
 					player()->get<CInput>().canJump = true;
-					player()->get<CState>().state = "idle";
+					player()->get<CState>().state = "running";
 				}
 				else
 					pTransform.pos.y += overlap.y;
@@ -251,12 +251,10 @@ void Scene_Play::sAnimation()
 	auto& pAnimation = player()->get<CAnimation>();
 	auto& pState = player()->get<CState>();
 
-	if (pState.state == "jumping" && player()->get<CAnimation>().animation.m_name != "BikerJump")
+	if (pState.state == "jumping" && pAnimation.animation.m_name != "BikerJump")
 		pAnimation = player()->add<CAnimation>(m_game->assets().getAnimation("BikerJump"), true);
-	if (pState.state == "running" && player()->get<CAnimation>().animation.m_name != "BikerRun")
+	if (pState.state == "running" && pAnimation.animation.m_name != "BikerRun")
 		pAnimation = player()->add<CAnimation>(m_game->assets().getAnimation("BikerRun"), true);
-	if (pState.state == "idle" && player()->get<CAnimation>().animation.m_name != "BikerIdle")
-		pAnimation = player()->add<CAnimation>(m_game->assets().getAnimation("BikerIdle"), true);
 
 	if (pInput.left)
 		pAnimation.animation.m_sprite.setScale({ -1, 1 });
