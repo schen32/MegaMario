@@ -31,7 +31,7 @@ void Scene_Play::init(const std::string& levelPath)
 	registerAction(sf::Keyboard::Scan::D, "RIGHT");
 	registerAction(sf::Keyboard::Scan::W, "JUMP");
 
-	m_playerConfig = { 200, 200, 0, 0, 30.0f, 0, "" };
+	m_playerConfig = { 300, 400, 0, 0, 30.0f, 0, "" };
 
 	m_gridText.setCharacterSize(40);
 	m_gridText.setFont(m_game->assets().getFont("Pixel"));
@@ -131,11 +131,14 @@ void Scene_Play::sMovement()
 		pTransform.velocity.x -= 5;
 	if (pInput.right)
 		pTransform.velocity.x += 5;
+	if (abs(pTransform.velocity.x) > 0 && pTransform.velocity.y == 0)
+		player()->get<CState>().state = "running";
+
 	if (pInput.up && pInput.canJump)
 	{
 		pTransform.velocity.y -= 15;
 		pInput.canJump = false;
-		player()->add<CAnimation>(m_game->assets().getAnimation("BikerJump"), true);
+		player()->get<CState>().state = "jumping";
 	}
 
 	for (auto& entity : m_entityManager.getEntities())
@@ -196,7 +199,7 @@ void Scene_Play::sCollision()
 				{
 					pTransform.pos.y -= overlap.y;
 					player()->get<CInput>().canJump = true;
-					player()->add<CAnimation>(m_game->assets().getAnimation("BikerIdle"), true);
+					player()->get<CState>().state = "idle";
 				}
 				else
 					pTransform.pos.y += overlap.y;
@@ -246,6 +249,14 @@ void Scene_Play::sAnimation()
 {
 	auto& pInput = player()->get<CInput>();
 	auto& pAnimation = player()->get<CAnimation>();
+	auto& pState = player()->get<CState>();
+
+	if (pState.state == "jumping" && player()->get<CAnimation>().animation.m_name != "BikerJump")
+		pAnimation = player()->add<CAnimation>(m_game->assets().getAnimation("BikerJump"), true);
+	if (pState.state == "running" && player()->get<CAnimation>().animation.m_name != "BikerRun")
+		pAnimation = player()->add<CAnimation>(m_game->assets().getAnimation("BikerRun"), true);
+	if (pState.state == "idle" && player()->get<CAnimation>().animation.m_name != "BikerIdle")
+		pAnimation = player()->add<CAnimation>(m_game->assets().getAnimation("BikerIdle"), true);
 
 	if (pInput.left)
 		pAnimation.animation.m_sprite.setScale({ -1, 1 });
