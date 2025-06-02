@@ -1,8 +1,20 @@
 Font FutureMillennium assets/0Fonts/FutureMillennium.ttf
 Font Pixel assets/fonts/PixelOperator8.ttf
 Texture TexBikerIdle assets/1Biker/Biker_idle.png
-Texture TexGround assets/1Tiles/IndustrialTile_05.png
+Texture TexGround assets/1Tiles/IndustrialTile_36.png
 Texture TexBackground assets/2Background/Background.png
+Texture TexBackground5 assets/2Background/5.png
+Texture TexBackground4 assets/2Background/4.png
+Texture TexBackground3 assets/2Background/3.png
+Texture TexBackground2 assets/2Background/2.png
+Texture TexBackground1 assets/2Background/1.png
+Texture TexBikerJump assets/1Biker/Biker_jump.png
 Animation BikerIdle TexBikerIdle 4 10
 Animation Ground TexGround 1 0
 Animation Background TexBackground 1 0
+Animation Background5 TexBackground5 1 0
+Animation Background4 TexBackground4 1 0
+Animation Background3 TexBackground3 1 0
+Animation Background2 TexBackground2 1 0
+Animation Background1 TexBackground1 1 0
+Animation BikerJump TexBikerJump 4 10

@@ -55,10 +55,20 @@ Vec2f Scene_Play::gridToMidPixel(float gridX, float gridY, std::shared_ptr<Entit
 void Scene_Play::loadLevel(const std::string& filename)
 {
 	m_entityManager = EntityManager();
-	spawnPlayer();
 
-	auto background = m_entityManager.addEntity("Background");
-	background->add<CAnimation>(m_game->assets().getAnimation("Background"), true);
+	for (int i = 0; i < 3; i++)
+	{
+		auto background = m_entityManager.addEntity("Background");
+		auto& bAnimation = background->add<CAnimation>(m_game->assets().getAnimation("Background"), true).animation;
+		background->add<CTransform>(gridToMidPixel(i, 0, background));
+
+		auto background2 = m_entityManager.addEntity("Background2");
+		auto& bAnimation2 = background2->add<CAnimation>(m_game->assets().getAnimation("Background3"), true).animation;
+		bAnimation2.m_sprite.setScale({ 1, -1 });
+		background2->add<CTransform>(gridToMidPixel(i, 2, background2));
+	}
+
+	spawnPlayer();
 
 	std::ifstream file(m_levelPath);
 	std::string tileType;
@@ -96,7 +106,7 @@ void Scene_Play::spawnPlayer()
 	entity->add<CTransform>(Vec2f(m_playerConfig.X, m_playerConfig.Y));
 	auto& eAnimation = entity->add<CAnimation>(m_game->assets().getAnimation("BikerIdle"), true);
 	entity->add<CInput>();
-	entity->add<CGravity>(0.981f);
+	entity->add<CGravity>(0.8);
 	entity->add<CBoundingBox>(Vec2f(eAnimation.animation.m_size.x / 3, eAnimation.animation.m_size.y));
 }
 
@@ -123,8 +133,9 @@ void Scene_Play::sMovement()
 		pTransform.velocity.x += 5;
 	if (pInput.up && pInput.canJump)
 	{
-		pTransform.velocity.y -= 20;
+		pTransform.velocity.y -= 15;
 		pInput.canJump = false;
+		player()->add<CAnimation>(m_game->assets().getAnimation("BikerJump"), true);
 	}
 
 	for (auto& entity : m_entityManager.getEntities())
@@ -185,6 +196,7 @@ void Scene_Play::sCollision()
 				{
 					pTransform.pos.y -= overlap.y;
 					player()->get<CInput>().canJump = true;
+					player()->add<CAnimation>(m_game->assets().getAnimation("BikerIdle"), true);
 				}
 				else
 					pTransform.pos.y += overlap.y;
@@ -270,7 +282,7 @@ void Scene_Play::sGui()
 void Scene_Play::sRender()
 {
 	auto& window = m_game->window();
-	window.clear();
+	window.clear(sf::Color(204, 226, 225));
 
 	for (auto& entity : m_entityManager.getEntities())
 	{
