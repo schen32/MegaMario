@@ -73,7 +73,6 @@ void GameEngine::sUserInput()
 				}
 			}
 		}
-		
 		if (const auto* keyPressed = event->getIf<sf::Event::KeyPressed>())
 		{
 			if (currentScene()->getActionMap().find(keyPressed->scancode) ==
@@ -106,6 +105,53 @@ void GameEngine::sUserInput()
 					"END"
 				)
 			);
+		}
+
+		Vec2f mousePos(sf::Mouse::getPosition(m_window));
+		if (const auto* mousePressed = event->getIf<sf::Event::MouseButtonPressed>())
+		{
+			switch (mousePressed->button)
+			{
+			case sf::Mouse::Button::Left:
+			{
+				currentScene()->doAction(Action("LEFT_CLICK", "START", mousePos));
+				break;
+			}
+			case sf::Mouse::Button::Middle:
+			{
+				currentScene()->doAction(Action("MIDDLE_CLICK", "START", mousePos));
+				break;
+			}
+			case sf::Mouse::Button::Right:
+			{
+				currentScene()->doAction(Action("RIGHT_CLICK", "START", mousePos));
+				break;
+			}
+			default: break;
+			}
+		}
+
+		if (const auto* mouseReleased = event->getIf<sf::Event::MouseButtonReleased>())
+		{
+			switch (mouseReleased->button)
+			{
+			case sf::Mouse::Button::Left:
+			{
+				currentScene()->doAction(Action("LEFT_CLICK", "END", mousePos));
+				break;
+			}
+			case sf::Mouse::Button::Middle:
+			{
+				currentScene()->doAction(Action("MIDDLE_CLICK", "END", mousePos));
+				break;
+			}
+			case sf::Mouse::Button::Right:
+			{
+				currentScene()->doAction(Action("RIGHT_CLICK", "END", mousePos));
+				break;
+			}
+			default: break;
+			}
 		}
 	}
 }

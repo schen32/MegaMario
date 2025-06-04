@@ -118,9 +118,9 @@ void Scene_Play::spawnPlayer()
 void Scene_Play::update()
 {
 	m_entityManager.update();
-	sAnimation();
-	sCollision();
 	sMovement();
+	sCollision();
+	sAnimation();
 
 	player()->get<CScore>().score++;
 	if (player()->get<CTransform>().pos.y > height() || player()->get<CTransform>().pos.x < 0)
@@ -141,6 +141,7 @@ void Scene_Play::sMovement()
 	if (pInput.up && pInput.canJump)
 	{
 		pTransform.velocity.y -= 15;
+		pInput.up = false;
 		pInput.canJump = false;
 		player()->get<CState>().state = "jumping";
 	}
@@ -154,10 +155,6 @@ void Scene_Play::sMovement()
 			auto& eGravity = entity->get<CGravity>();
 			eTransform.velocity.y += eGravity.gravity;
 		}
-		if (abs(eTransform.velocity.x) > m_playerConfig.SPEED)
-			eTransform.velocity.x = eTransform.velocity.x / abs(eTransform.velocity.x) * m_playerConfig.SPEED;
-		if (abs(eTransform.velocity.y) > m_playerConfig.SPEED)
-			eTransform.velocity.y = eTransform.velocity.y / abs(eTransform.velocity.y) * m_playerConfig.SPEED;
 
 		eTransform.prevPos = eTransform.pos;
 		eTransform.pos += eTransform.velocity;
@@ -231,6 +228,10 @@ void Scene_Play::sDoAction(const Action& action)
 		{
 			pInput.up = true;
 		}
+		else if (action.m_name == "LEFT_CLICK")
+		{
+			pInput.up = true;
+		}
 	}
 	else if (action.m_type == "END")
 	{
@@ -241,10 +242,6 @@ void Scene_Play::sDoAction(const Action& action)
 		else if (action.m_name == "RIGHT")
 		{
 			pInput.right = false;
-		}
-		else if (action.m_name == "JUMP")
-		{
-			pInput.up = false;
 		}
 	}
 }
