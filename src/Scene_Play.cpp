@@ -60,7 +60,7 @@ void Scene_Play::loadLevel(const std::string& filename)
 
 	for (int i = 0; i < 3; i++)
 	{
-		auto background = m_entityManager.addEntity("Background");
+		auto background = m_entityManager.addEntity("background");
 		auto& bAnimation = background->add<CAnimation>(m_game->assets().getAnimation("Background"), true).animation;
 		background->add<CTransform>(gridToMidPixel(i, 0, background));
 
@@ -121,10 +121,26 @@ void Scene_Play::update()
 	sMovement();
 	sCollision();
 	sAnimation();
+	sDespawn();
 
 	player()->get<CScore>().score++;
+}
+
+void Scene_Play::sDespawn()
+{
 	if (player()->get<CTransform>().pos.y > height() || player()->get<CTransform>().pos.x < 0)
 		loadLevel(m_levelPath);
+
+	for (auto& entity : m_entityManager.getEntities())
+	{
+		auto& eTransform = entity->get<CTransform>();
+		auto& eAnimation = entity->get<CAnimation>().animation;
+
+		if (eTransform.pos.x < -eAnimation.m_size.x)
+		{
+			entity->destroy();
+		}
+	}
 }
 
 void Scene_Play::sMovement()

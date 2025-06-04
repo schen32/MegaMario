@@ -37,6 +37,7 @@ protected:
 	void sDoAction(const Action& action);
 	Vec2f gridToMidPixel(float gridX, float gridY, std::shared_ptr<Entity> entity);
 
+	void sDespawn();
 	void sMovement();
 	void sAI();
 	void sStatus();
