@@ -64,7 +64,7 @@ void Scene_Play::loadLevel(const std::string& filename)
 		auto& bAnimation = background->add<CAnimation>(m_game->assets().getAnimation("Background"), true).animation;
 		background->add<CTransform>(gridToMidPixel(i, 0, background));
 
-		auto background2 = m_entityManager.addEntity("Background2");
+		auto background2 = m_entityManager.addEntity("background");
 		auto& bAnimation2 = background2->add<CAnimation>(m_game->assets().getAnimation("Background3"), true).animation;
 		bAnimation2.m_sprite.setScale({ 1, -1 });
 		background2->add<CTransform>(gridToMidPixel(i, 2, background2));
