@@ -133,6 +133,7 @@ void Scene_Play::spawnPlayer()
 void Scene_Play::update()
 {
 	m_entityManager.update();
+	sDrag();
 	if (!m_paused)
 	{
 		sScore();
@@ -140,7 +141,6 @@ void Scene_Play::update()
 		sCollision();
 		sDespawn();
 	}
-	sDrag();
 	sAnimation();
 }
 
@@ -230,9 +230,6 @@ void Scene_Play::sCollision()
 {
 	for (auto& tile : m_entityManager.getEntities("Tile"))
 	{
-		if (player()->id() == tile->id())
-			continue;
-
 		Vec2f overlap = Physics::GetOverlap(player(), tile);
 		if (overlap.x > 0 && overlap.y > 0)
 		{
@@ -240,14 +237,6 @@ void Scene_Play::sCollision()
 			auto& pTransform = player()->get<CTransform>();
 			auto& tileTransform = tile->get<CTransform>();
 
-			if (prevOverlap.y > 0)
-			{
-				pTransform.velocity.x = 0;
-				if (pTransform.prevPos.x < tileTransform.pos.x)
-					pTransform.pos.x -= overlap.x;
-				else
-					pTransform.pos.x += overlap.x;
-			}
 			if (prevOverlap.x > 0)
 			{
 				pTransform.velocity.y = 0;
@@ -260,6 +249,15 @@ void Scene_Play::sCollision()
 				else
 					pTransform.pos.y += overlap.y;
 			}
+			else if (prevOverlap.y > 0)
+			{
+				pTransform.velocity.x = 0;
+				if (pTransform.prevPos.x < tileTransform.pos.x)
+					pTransform.pos.x -= overlap.x;
+				else
+					pTransform.pos.x += overlap.x;
+			}
+			
 		}
 
 	}
@@ -303,10 +301,6 @@ void Scene_Play::sDoAction(const Action& action)
 			onEnd();
 		}
 		else if (action.m_name == "PAUSE")
-		{
-			m_paused = !m_paused;
-		}
-		else if (action.m_name == "RIGHT_CLICK")
 		{
 			m_paused = !m_paused;
 		}
@@ -372,9 +366,6 @@ void Scene_Play::sRender()
 	auto& window = m_game->window();
 	window.clear(sf::Color(204, 226, 225));
 
-	m_gridText.setString(std::to_string(player()->get<CScore>().score));
-	window.draw(m_gridText);
-
 	for (auto& entity : m_entityManager.getEntities())
 	{
 		auto& transform = entity->get<CTransform>();
@@ -383,4 +374,7 @@ void Scene_Play::sRender()
 		sprite.setPosition(transform.pos);
 		window.draw(sprite);
 	}
+
+	m_gridText.setString(std::to_string(player()->get<CScore>().score));
+	window.draw(m_gridText);
 }
