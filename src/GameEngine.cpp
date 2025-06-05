@@ -195,9 +195,9 @@ void GameEngine::update()
 	if (!isRunning()) return;
 	if (m_sceneMap.empty()) return;
 
-	sUserInput();
-	currentScene()->simulate(m_simulationSpeed);
-	currentScene()->sRender();
+		sUserInput();
+		currentScene()->simulate(m_simulationSpeed);
+		currentScene()->sRender();
 
 	ImGui::SFML::Render(m_window);
 	m_window.display();

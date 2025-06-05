@@ -133,12 +133,19 @@ void Scene_Play::spawnPlayer()
 void Scene_Play::update()
 {
 	m_entityManager.update();
-	sMovement();
+	if (!m_paused)
+	{
+		sScore();
+		sMovement();
+		sCollision();
+		sDespawn();
+	}
 	sDrag();
-	sCollision();
 	sAnimation();
-	sDespawn();
+}
 
+void Scene_Play::sScore()
+{
 	player()->get<CScore>().score++;
 }
 
@@ -291,6 +298,18 @@ void Scene_Play::sDoAction(const Action& action)
 		{
 			m_mousePos = action.m_mousePos;
 		}
+		else if (action.m_name == "QUIT")
+		{
+			onEnd();
+		}
+		else if (action.m_name == "PAUSE")
+		{
+			m_paused = !m_paused;
+		}
+		else if (action.m_name == "RIGHT_CLICK")
+		{
+			m_paused = !m_paused;
+		}
 	}
 	else if (action.m_type == "END")
 	{
@@ -340,7 +359,7 @@ void Scene_Play::sCamera()
 
 void Scene_Play::onEnd()
 {
-
+	m_game->quit();
 }
 
 void Scene_Play::sGui()

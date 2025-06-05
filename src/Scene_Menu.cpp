@@ -61,7 +61,7 @@ void Scene_Menu::sDoAction(const Action& action)
 		}
 		else if (action.m_name == "QUIT")
 		{
-			onEnd();
+            onEnd();
 		}
 	}
 }

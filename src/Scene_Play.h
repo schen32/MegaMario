@@ -38,6 +38,7 @@ protected:
 	void sDoAction(const Action& action);
 	Vec2f gridToMidPixel(float gridX, float gridY, std::shared_ptr<Entity> entity);
 
+	void sScore();
 	void sDrag();
 	void sDespawn();
 	void sMovement();

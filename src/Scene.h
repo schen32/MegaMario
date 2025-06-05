@@ -40,5 +40,4 @@ public:
 
 	bool hasEnded() const;
 	const ActionMap& getActionMap() const;
-	void drawLine(const Vec2f& p1, const Vec2f& p2);
 };
