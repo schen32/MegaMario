@@ -14,7 +14,8 @@ using ComponentTuple = std::tuple<
 	CAnimation,
 	CGravity,
 	CState,
-	CScore
+	CScore,
+	CDraggable
 >;
 
 class Entity

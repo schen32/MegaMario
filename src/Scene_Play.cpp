@@ -12,6 +12,19 @@
 #include <cmath>
 #include <math.h>
 
+bool IsInside(const Vec2f& pos, std::shared_ptr<Entity> entity)
+{
+	auto& ePosition = entity->get<CTransform>().pos;
+	auto& eSize = entity->get<CAnimation>().animation.m_size;
+
+	if (ePosition.x - eSize.x / 2 <= pos.x && pos.x <= ePosition.x + eSize.x / 2 &&
+		ePosition.y - eSize.y / 2 <= pos.y && pos.y <= ePosition.y + eSize.y / 2)
+	{
+		return true;
+	}
+	return false;
+}
+
 Scene_Play::Scene_Play(GameEngine* gameEngine, const std::string& levelPath)
 	: Scene(gameEngine)
 	, m_levelPath(levelPath)
@@ -87,6 +100,7 @@ void Scene_Play::loadLevel(const std::string& filename)
 			auto& eAnimation = tile->add<CAnimation>(m_game->assets().getAnimation(aniName), true);
 			tile->add<CTransform>(gridToMidPixel(gridX, gridY, tile), Vec2f(-1, 0), 0);
 			tile->add<CBoundingBox>(eAnimation.animation.m_size);
+			tile->add<CDraggable>();
 		}
 		else if (tileType == "Dec")
 		{
@@ -113,17 +127,35 @@ void Scene_Play::spawnPlayer()
 	p->add<CGravity>(0.8);
 	p->add<CBoundingBox>(Vec2f(eAnimation.animation.m_size.x / 3, eAnimation.animation.m_size.y));
 	p->add<CScore>();
+	p->add<CDraggable>();
 }
 
 void Scene_Play::update()
 {
 	m_entityManager.update();
 	sMovement();
+	sDrag();
 	sCollision();
 	sAnimation();
 	sDespawn();
 
 	player()->get<CScore>().score++;
+}
+
+void Scene_Play::sDrag()
+{
+	for (auto& entity : m_entityManager.getEntities())
+	{
+		if (entity->has<CDraggable>() && entity->get<CDraggable>().dragging)
+		{
+			auto& eTransform = entity->get<CTransform>();
+			eTransform.pos = m_mousePos;
+			if (entity->id() == player()->id())
+			{
+				eTransform.velocity = { 0, 0 };
+			}
+		}
+	}
 }
 
 void Scene_Play::sDespawn()
@@ -246,7 +278,18 @@ void Scene_Play::sDoAction(const Action& action)
 		}
 		else if (action.m_name == "LEFT_CLICK")
 		{
-			pInput.up = true;
+			for (auto& entity : m_entityManager.getEntities())
+			{
+				if (entity->has<CDraggable>() && IsInside(action.m_mousePos, entity))
+				{
+					auto& eDrag = entity->get<CDraggable>().dragging;
+					eDrag = !eDrag;
+				}
+			}
+		}
+		else if (action.m_name == "MOUSE_MOVE")
+		{
+			m_mousePos = action.m_mousePos;
 		}
 	}
 	else if (action.m_type == "END")

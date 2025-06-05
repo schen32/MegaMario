@@ -107,24 +107,23 @@ void GameEngine::sUserInput()
 			);
 		}
 
-		Vec2f mousePos(sf::Mouse::getPosition(m_window));
 		if (const auto* mousePressed = event->getIf<sf::Event::MouseButtonPressed>())
 		{
 			switch (mousePressed->button)
 			{
 			case sf::Mouse::Button::Left:
 			{
-				currentScene()->doAction(Action("LEFT_CLICK", "START", mousePos));
+				currentScene()->doAction(Action("LEFT_CLICK", "START", mousePressed->position));
 				break;
 			}
 			case sf::Mouse::Button::Middle:
 			{
-				currentScene()->doAction(Action("MIDDLE_CLICK", "START", mousePos));
+				currentScene()->doAction(Action("MIDDLE_CLICK", "START", mousePressed->position));
 				break;
 			}
 			case sf::Mouse::Button::Right:
 			{
-				currentScene()->doAction(Action("RIGHT_CLICK", "START", mousePos));
+				currentScene()->doAction(Action("RIGHT_CLICK", "START", mousePressed->position));
 				break;
 			}
 			default: break;
@@ -137,21 +136,26 @@ void GameEngine::sUserInput()
 			{
 			case sf::Mouse::Button::Left:
 			{
-				currentScene()->doAction(Action("LEFT_CLICK", "END", mousePos));
+				currentScene()->doAction(Action("LEFT_CLICK", "END", mouseReleased->position));
 				break;
 			}
 			case sf::Mouse::Button::Middle:
 			{
-				currentScene()->doAction(Action("MIDDLE_CLICK", "END", mousePos));
+				currentScene()->doAction(Action("MIDDLE_CLICK", "END", mouseReleased->position));
 				break;
 			}
 			case sf::Mouse::Button::Right:
 			{
-				currentScene()->doAction(Action("RIGHT_CLICK", "END", mousePos));
+				currentScene()->doAction(Action("RIGHT_CLICK", "END", mouseReleased->position));
 				break;
 			}
 			default: break;
 			}
+		}
+
+		if (const auto* mouseMoved = event->getIf<sf::Event::MouseMoved>())
+		{
+			currentScene()->doAction(Action("MOUSE_MOVE", "START", mouseMoved->position));
 		}
 	}
 }

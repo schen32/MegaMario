@@ -26,6 +26,7 @@ protected:
 	const Vec2f              m_gridSize = { 64, 64 };
 	sf::Font				 m_fontText;
 	sf::Text                 m_gridText = sf::Text(m_fontText);
+	Vec2f					 m_mousePos = { 0, 0 };
 
 	void init(const std::string& levelPath);
 	void loadLevel(const std::string& filename);
@@ -37,6 +38,7 @@ protected:
 	void sDoAction(const Action& action);
 	Vec2f gridToMidPixel(float gridX, float gridY, std::shared_ptr<Entity> entity);
 
+	void sDrag();
 	void sDespawn();
 	void sMovement();
 	void sAI();

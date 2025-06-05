@@ -101,3 +101,12 @@ public:
 	CScore() = default;
 	CScore(int s) : score(s) {}
 };
+
+class CDraggable : public Component
+{
+public:
+	bool dragging = false;
+
+	CDraggable() = default;
+	CDraggable(bool draggable) : dragging(draggable) {}
+};
