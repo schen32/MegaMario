@@ -16,7 +16,7 @@ void GameEngine::init(const std::string& path)
 {
 	m_assets.loadFromFile(path);
 
-	m_window.create(sf::VideoMode({ 1700, 900 }), "Cyber Runner");
+	m_window.create(sf::VideoMode({ 1920, 1080 }), "Cyber Runner");
 	m_window.setFramerateLimit(60);
 
 	if (!ImGui::SFML::Init(m_window))
@@ -24,7 +24,8 @@ void GameEngine::init(const std::string& path)
 		std::cerr << "Could not open window." << std::endl;
 	}
 
-	changeScene("MENU", std::make_shared<Scene_Menu>(this));
+	// changeScene("MENU", std::make_shared<Scene_Menu>(this));
+	changeScene("PLAY", std::make_shared<Scene_Play>(this, "assets/play.txt"));
 }
 
 std::shared_ptr<Scene> GameEngine::currentScene()
@@ -62,18 +63,6 @@ void GameEngine::sUserInput()
 			quit();
 		}
 
-		if (const auto* keyPressed = event->getIf<sf::Event::KeyPressed>())
-		{
-			if (keyPressed->scancode == sf::Keyboard::Scancode::X)
-			{
-				auto texture = sf::Texture(m_window.getSize());
-				texture.update(m_window);
-				if (texture.copyToImage().saveToFile("test.png"))
-				{
-					std::cout << "Screenshot Saved: " << "test.png" << std::endl;
-				}
-			}
-		}
 		if (const auto* keyPressed = event->getIf<sf::Event::KeyPressed>())
 		{
 			if (currentScene()->getActionMap().find(keyPressed->scancode) ==

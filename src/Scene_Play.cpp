@@ -43,8 +43,8 @@ void Scene_Play::init(const std::string& levelPath)
 
 	registerAction(sf::Keyboard::Scan::A, "LEFT");
 	registerAction(sf::Keyboard::Scan::D, "RIGHT");
-	registerAction(sf::Keyboard::Scan::W, "JUMP");
-	registerAction(sf::Keyboard::Scan::Space, "JUMP");
+	registerAction(sf::Keyboard::Scan::W, "UP");
+	registerAction(sf::Keyboard::Scan::S, "DOWN");
 
 	m_playerConfig = { 300, 400, 0, 0, 30.0f, 0, "" };
 
@@ -74,20 +74,6 @@ void Scene_Play::loadLevel(const std::string& filename)
 {
 	m_entityManager = EntityManager();
 
-	for (int i = 0; i < 3; i++)
-	{
-		auto background = m_entityManager.addEntity("background");
-		auto& bAnimation = background->add<CAnimation>(m_game->assets().getAnimation("Background"), true).animation;
-		background->add<CTransform>(gridToMidPixel(i, 0, background));
-
-		auto background2 = m_entityManager.addEntity("background");
-		auto& bAnimation2 = background2->add<CAnimation>(m_game->assets().getAnimation("Background3"), true).animation;
-		bAnimation2.m_sprite.setScale({ 1, -1 });
-		background2->add<CTransform>(gridToMidPixel(i, 2, background2));
-	}
-
-	spawnPlayer();
-
 	std::ifstream file(m_levelPath);
 	std::string tileType;
 	while (file >> tileType)
@@ -101,16 +87,12 @@ void Scene_Play::loadLevel(const std::string& filename)
 		{
 			auto tile = m_entityManager.addEntity("Tile");
 			auto& eAnimation = tile->add<CAnimation>(m_game->assets().getAnimation(aniName), true);
-			tile->add<CTransform>(gridToMidPixel(gridX, gridY, tile), Vec2f(-1, 0), 0);
+			tile->add<CTransform>(gridToMidPixel(gridX, gridY, tile), Vec2f(0, 0), 0);
 			tile->add<CBoundingBox>(eAnimation.animation.m_size);
-			tile->add<CDraggable>();
-		}
-		else if (tileType == "Dec")
-		{
-
 		}
 	}
 
+	spawnPlayer();
 	m_entityManager.update();
 }
 
@@ -127,29 +109,24 @@ void Scene_Play::spawnPlayer()
 	p->add<CTransform>(Vec2f(m_playerConfig.X, m_playerConfig.Y));
 	auto& eAnimation = p->add<CAnimation>(m_game->assets().getAnimation("BikerIdle"), true);
 	p->add<CInput>();
-	p->add<CGravity>(0.8);
-	p->add<CBoundingBox>(Vec2f(eAnimation.animation.m_size.x / 3, eAnimation.animation.m_size.y));
-	p->add<CScore>();
-	p->add<CDraggable>();
+	p->add<CBoundingBox>(Vec2f(eAnimation.animation.m_size.x, eAnimation.animation.m_size.y));
+
 }
 
 void Scene_Play::update()
 {
 	m_entityManager.update();
-	sDrag();
 	if (!m_paused)
 	{
-		sScore();
 		sMovement();
 		sCollision();
-		sDespawn();
 	}
 	sAnimation();
 }
 
 void Scene_Play::sScore()
 {
-	player()->get<CScore>().score++;
+	
 }
 
 void Scene_Play::sDrag()
@@ -170,19 +147,7 @@ void Scene_Play::sDrag()
 
 void Scene_Play::sDespawn()
 {
-	if (player()->get<CTransform>().pos.y > height() || player()->get<CTransform>().pos.x < 0)
-		loadLevel(m_levelPath);
-
-	for (auto& entity : m_entityManager.getEntities())
-	{
-		auto& eTransform = entity->get<CTransform>();
-		auto& eAnimation = entity->get<CAnimation>().animation;
-
-		if (eTransform.pos.x < -eAnimation.m_size.x)
-		{
-			entity->destroy();
-		}
-	}
+	
 }
 
 void Scene_Play::sMovement()
@@ -190,29 +155,19 @@ void Scene_Play::sMovement()
 	auto& pInput = player()->get<CInput>();
 	auto& pTransform = player()->get<CTransform>();
 
-	pTransform.velocity.x = -1;
+	pTransform.velocity = { 0, 0 };
 	if (pInput.left)
 		pTransform.velocity.x -= 5;
 	if (pInput.right)
 		pTransform.velocity.x += 5;
-
-	if (pInput.up && pInput.canJump)
-	{
-		pTransform.velocity.y -= 15;
-		pInput.up = false;
-		pInput.canJump = false;
-		player()->get<CState>().state = "jumping";
-	}
+	if (pInput.up)
+		pTransform.velocity.y -= 5;
+	if (pInput.down)
+		pTransform.velocity.y += 5;
 
 	for (auto& entity : m_entityManager.getEntities())
 	{
 		auto& eTransform = entity->get<CTransform>();
-
-		if (entity->has<CGravity>())
-		{
-			auto& eGravity = entity->get<CGravity>();
-			eTransform.velocity.y += eGravity.gravity;
-		}
 
 		eTransform.prevPos = eTransform.pos;
 		eTransform.pos += eTransform.velocity;
@@ -260,11 +215,8 @@ void Scene_Play::sCollision()
 				else
 					pTransform.pos.x += overlap.x;
 			}
-			
 		}
-
 	}
-
 }
 
 void Scene_Play::sDoAction(const Action& action)
@@ -280,24 +232,13 @@ void Scene_Play::sDoAction(const Action& action)
 		{
 			pInput.right = true;
 		}
-		else if (action.m_name == "JUMP")
+		else if (action.m_name == "UP")
 		{
 			pInput.up = true;
 		}
-		else if (action.m_name == "LEFT_CLICK")
+		else if (action.m_name == "DOWN")
 		{
-			for (auto& entity : m_entityManager.getEntities())
-			{
-				if (entity->has<CDraggable>() && IsInside(action.m_mousePos, entity))
-				{
-					auto& eDrag = entity->get<CDraggable>().dragging;
-					eDrag = !eDrag;
-				}
-			}
-		}
-		else if (action.m_name == "MOUSE_MOVE")
-		{
-			m_mousePos = action.m_mousePos;
+			pInput.down = true;
 		}
 		else if (action.m_name == "QUIT")
 		{
@@ -318,25 +259,19 @@ void Scene_Play::sDoAction(const Action& action)
 		{
 			pInput.right = false;
 		}
+		if (action.m_name == "UP")
+		{
+			pInput.up = false;
+		}
+		else if (action.m_name == "DOWN")
+		{
+			pInput.down = false;
+		}
 	}
 }
 
 void Scene_Play::sAnimation()
 {
-	auto& pInput = player()->get<CInput>();
-	auto& pAnimation = player()->get<CAnimation>();
-	auto& pState = player()->get<CState>();
-
-	if (pState.state == "jumping" && pAnimation.animation.m_name != "BikerJump")
-		pAnimation = player()->add<CAnimation>(m_game->assets().getAnimation("BikerJump"), true);
-	if (pState.state == "running" && pAnimation.animation.m_name != "BikerRun")
-		pAnimation = player()->add<CAnimation>(m_game->assets().getAnimation("BikerRun"), true);
-
-	if (pInput.left)
-		pAnimation.animation.m_sprite.setScale({ -1, 1 });
-	if (pInput.right)
-		pAnimation.animation.m_sprite.setScale({ 1, 1 });
-
 	for (auto& entity : m_entityManager.getEntities())
 	{
 		if (!entity->has<CAnimation>())
@@ -378,7 +313,7 @@ void Scene_Play::sRender()
 		window.draw(sprite);
 	}
 
-	m_gridText.setString(std::to_string(player()->get<CScore>().score));
+	m_gridText.setString("Hello World");
 	window.draw(m_gridText);
 
 	/*m_particleSystem.update();
