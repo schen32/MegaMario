@@ -2,6 +2,7 @@
 #include "Assets.hpp"
 #include "Scene_Menu.h"
 #include "Scene_Play.h"
+#include "Timer.hpp"
 
 #include <fstream>
 #include <iostream>

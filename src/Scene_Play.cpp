@@ -5,6 +5,7 @@
 #include "GameEngine.h"
 #include "Components.hpp"
 #include "Action.hpp"
+#include "ParticleSystem.hpp"
 
 #include <fstream>
 #include <iostream>
@@ -51,6 +52,8 @@ void Scene_Play::init(const std::string& levelPath)
 	m_gridText.setFont(m_game->assets().getFont("FutureMillennium"));
 	m_gridText.setOutlineThickness(5.0f);
 	m_gridText.setOutlineColor(sf::Color(86, 106, 137));
+
+	m_particleSystem.init(m_game->window().getSize());
 
 	loadLevel(levelPath);
 }
@@ -377,4 +380,7 @@ void Scene_Play::sRender()
 
 	m_gridText.setString(std::to_string(player()->get<CScore>().score));
 	window.draw(m_gridText);
+
+	/*m_particleSystem.update();
+	m_particleSystem.draw(window);*/
 }

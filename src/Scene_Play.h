@@ -5,6 +5,7 @@
 #include <memory>
 
 #include "EntityManager.hpp"
+#include "ParticleSystem.hpp"
 
 class Scene_Play : public Scene
 {
@@ -27,6 +28,7 @@ protected:
 	sf::Font				 m_fontText;
 	sf::Text                 m_gridText = sf::Text(m_fontText);
 	Vec2f					 m_mousePos = { 0, 0 };
+	ParticleSystem			 m_particleSystem;
 
 	void init(const std::string& levelPath);
 	void loadLevel(const std::string& filename);
